@@ -96,3 +96,17 @@ const WithdrawStatusProcessing WithdrawStatus = 20
 const WithdrawStatusSuccess WithdrawStatus = 30
 const WithdrawStatusConfirmed WithdrawStatus = 40
 const WithdrawStatusFailed WithdrawStatus = 99
+
+type SubWalletTransferType int
+
+const SubWalletNotFiltered SubWalletTransferType = 0
+const SubWalletParentToSub SubWalletTransferType = 10
+const SubWalletSubToParent SubWalletTransferType = 20
+const SubWalletSubToSub SubWalletTransferType = 30
+
+type SubWalletTransferStatus int
+
+const SubWalletTransferStatusPending SubWalletTransferStatus = 10
+const SubWalletTransferStatusProcessing SubWalletTransferStatus = 20
+const SubWalletTransferStatusSuccess SubWalletTransferStatus = 30
+const SubWalletTransferStatusFailed SubWalletTransferStatus = 99

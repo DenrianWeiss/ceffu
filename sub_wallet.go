@@ -36,7 +36,9 @@ func (c *Client) GetSubWalletAssetDetails(walletId int64, coinSymbol string, net
 		pageNo = 1
 	}
 	params := map[string]string{
-		"walletId": strconv.FormatInt(walletId, 10),
+		"walletId":  strconv.FormatInt(walletId, 10),
+		"pageLimit": strconv.Itoa(pageLimit),
+		"pageNo":    strconv.Itoa(pageNo),
 	}
 	if coinSymbol != "" {
 		params["coinSymbol"] = coinSymbol
@@ -338,6 +340,75 @@ func (c *Client) GetAllSubWallet(parentWalletId int64, pageLimit int, pageNo int
 		return nil, err
 	}
 	response := &GetAllSubWalletResp{}
+	err = json.Unmarshal(get, response)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type GetSubWalletTransferHistoryResp struct {
+	Data struct {
+		Data []struct {
+			OrderViewId  string `json:"orderViewId"`
+			Direction    int    `json:"direction"`
+			FromWalletId int64  `json:"fromWalletId"`
+			ToWalletId   int64  `json:"toWalletId"`
+			CoinSymbol   string `json:"coinSymbol"`
+			Amount       string `json:"amount"`
+			Status       int    `json:"status"`
+		} `json:"data"`
+		TotalPage int `json:"totalPage"`
+		PageNo    int `json:"pageNo"`
+		PageLimit int `json:"pageLimit"`
+	} `json:"data"`
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+// GetTransferHistory gets transfer history between sub wallet and prime wallet
+// walletId: required, prime wallet id
+// coinSymbol: optional, to filter txs.
+// direction: optional, transfer direction
+// status: optional, to filter txs.
+// startTime: required, unix timestamp in millisecond
+// endTime: optional, unix timestamp in millisecond, default now
+// pageLimit: default 25 max 25
+// pageNo: default 1
+func (c *Client) GetTransferHistory(walletId int64, coinSymbol string, direction SubWalletTransferType, status SubWalletTransferStatus, startTime int64, endTime int64, pageLimit int, pageNo int) (*GetSubWalletTransferHistoryResp, error) {
+	params := map[string]string{
+		"walletId":  strconv.FormatInt(walletId, 10),
+		"startTime": strconv.FormatInt(startTime, 10),
+	}
+	// optional params
+	if coinSymbol != "" {
+		params["coinSymbol"] = coinSymbol
+	}
+	if direction != 0 {
+		params["direction"] = strconv.Itoa(int(direction))
+	}
+	if status != 0 {
+		params["status"] = strconv.Itoa(int(status))
+	}
+	if endTime != 0 {
+		params["endTime"] = strconv.FormatInt(endTime, 10)
+	} else {
+		params["endTime"] = strconv.FormatInt(time.Now().UnixMilli(), 10)
+	}
+	if pageLimit == 0 || pageLimit > 25 {
+		pageLimit = 25
+	}
+	params["pageLimit"] = strconv.FormatInt(int64(pageLimit), 10)
+	if pageNo == 0 {
+		pageNo = 1
+	}
+	params["pageNo"] = strconv.FormatInt(int64(pageNo), 10)
+	// request
+	get, err := c.get("subwallet/transfer/history", params)
+	if err != nil {
+		return nil, err
+	}
+	response := &GetSubWalletTransferHistoryResp{}
 	err = json.Unmarshal(get, response)
 	if err != nil {
 		return nil, err

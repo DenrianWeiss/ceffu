@@ -28,7 +28,7 @@ func New(apiKey string, x509KeyBase64 string, client *http.Client, logger *log.L
 	decodedLength := base64.StdEncoding.DecodedLen(len(x509KeyBase64))
 	decodedBytes := make([]byte, decodedLength)
 	decodedLength, err :=
-		base64.StdEncoding.Decode([]byte(x509KeyBase64), decodedBytes)
+		base64.StdEncoding.Decode(decodedBytes, []byte(x509KeyBase64))
 	if err != nil {
 		return nil, err
 	}
