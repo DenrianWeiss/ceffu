@@ -106,7 +106,17 @@ const SubWalletSubToSub SubWalletTransferType = 30
 
 type SubWalletTransferStatus int
 
-const SubWalletTransferStatusPending SubWalletTransferStatus = 10
-const SubWalletTransferStatusProcessing SubWalletTransferStatus = 20
-const SubWalletTransferStatusSuccess SubWalletTransferStatus = 30
-const SubWalletTransferStatusFailed SubWalletTransferStatus = 99
+const (
+	SubWalletTransferStatusPending    SubWalletTransferStatus = 10
+	SubWalletTransferStatusProcessing SubWalletTransferStatus = 20
+	SubWalletTransferStatusSuccess    SubWalletTransferStatus = 30
+	SubWalletTransferStatusFailed     SubWalletTransferStatus = 99
+)
+
+type MirrorXOrderType int
+
+const (
+	MirrorXOrderTypeAll      MirrorXOrderType = 0
+	MirrorXOrderTypeDeposit  MirrorXOrderType = 10
+	MirrorXOrderTypeWithdraw MirrorXOrderType = 20
+)
