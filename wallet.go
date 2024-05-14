@@ -273,22 +273,22 @@ func (c *Client) GetDepositAddress(coinSymbol string, network string, walletId s
 type GetDepositHistoryResp struct {
 	Data struct {
 		Data []struct {
-			OrderViewID         interface{}       `json:"orderViewId"`
-			TxID                string            `json:"txId"`
+			OrderViewID         string            `json:"orderViewId"`
+			TxID                interface{}       `json:"txId"` // String or null
 			TransferType        TransferType      `json:"transferType"`
 			Direction           TransferDirection `json:"direction"` // See constants.go/TransferDirectionInt*
 			FromAddress         string            `json:"fromAddress"`
 			ToAddress           string            `json:"toAddress"`
-			Network             string            `json:"network"`
+			Network             interface{}       `json:"network"` // String or null
 			CoinSymbol          string            `json:"coinSymbol"`
 			Amount              string            `json:"amount"`
-			FeeSymbol           string            `json:"feeSymbol"`
+			FeeSymbol           interface{}       `json:"feeSymbol"`
 			FeeAmount           string            `json:"feeAmount"`
 			Status              int               `json:"status"`
 			ConfirmedBlockCount int               `json:"confirmedBlockCount"`
 			UnlockConfirm       int               `json:"unlockConfirm"`
 			MaxConfirmBlock     interface{}       `json:"maxConfirmBlock"`
-			Memo                interface{}       `json:"memo"`
+			Memo                interface{}       `json:"memo"` // String or null
 			TxTime              int64             `json:"txTime"`
 			WalletID            int64             `json:"walletId"`
 		} `json:"data"`
@@ -345,25 +345,26 @@ func (c *Client) GetDepositHistory(walletId string, coinSymbol string, network s
 }
 
 type GetDepositDetailResp struct {
-	Data struct {
-		OrderViewID         interface{}       `json:"orderViewId"` // null or string
-		TxID                string            `json:"txId"`
-		TransferType        TransferType      `json:"transferType"` // Same as above
-		Direction           TransferDirection `json:"direction"`
-		FromAddress         string            `json:"fromAddress"`
-		ToAddress           string            `json:"toAddress"`
-		Network             string            `json:"network"`
-		CoinSymbol          string            `json:"coinSymbol"`
-		Amount              string            `json:"amount"`
-		FeeSymbol           string            `json:"feeSymbol"`
-		FeeAmount           string            `json:"feeAmount"`
-		Status              int               `json:"status"`
-		ConfirmedBlockCount int               `json:"confirmedBlockCount"`
-		UnlockConfirm       int               `json:"unlockConfirm"`
-		MaxConfirmBlock     interface{}       `json:"maxConfirmBlock"`
-		Memo                interface{}       `json:"memo"`
-		TxTime              int64             `json:"txTime"`
-		WalletID            int64             `json:"walletId"`
+	Data []struct {
+		OrderViewId         string      `json:"orderViewId"`
+		TxId                interface{} `json:"txId"` // String or null
+		TransferType        int         `json:"transferType"`
+		Direction           int         `json:"direction"`
+		FromAddress         string      `json:"fromAddress"`
+		ToAddress           string      `json:"toAddress"`
+		Network             interface{} `json:"network"` // String or null
+		CoinSymbol          string      `json:"coinSymbol"`
+		Amount              string      `json:"amount"`
+		FeeSymbol           interface{} `json:"feeSymbol"` // String or null
+		FeeAmount           string      `json:"feeAmount"`
+		Status              int         `json:"status"`
+		ConfirmedBlockCount interface{} `json:"confirmedBlockCount"` // int or null
+		UnlockConfirm       interface{} `json:"unlockConfirm"`       // int or null
+		MaxConfirmBlock     interface{} `json:"maxConfirmBlock"`     // int or null
+		Memo                interface{} `json:"memo"`
+		TxTime              int64       `json:"txTime"`
+		WalletId            int64       `json:"walletId"`
+		RequestId           interface{} `json:"requestId"` // String or null
 	} `json:"data"`
 	Code    string `json:"code"`
 	Message string `json:"message"`
@@ -372,7 +373,7 @@ type GetDepositDetailResp struct {
 // GetDepositDetail queries the deposit detail of a transaction
 // txId: required, transaction id for corresponding deposit
 func (c *Client) GetDepositDetail(txId string) (*GetDepositDetailResp, error) {
-	get, err := c.get("wallet/deposit/detail", map[string]string{
+	get, err := c.getV2("wallet/deposit/detail", map[string]string{
 		"txId": txId,
 	})
 	if err != nil {
