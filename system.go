@@ -20,7 +20,7 @@ func (c *Client) GetStatus(business string, walletType string) (resp *GetStatusR
 		"business":   business,
 		"walletType": walletType,
 	}
-	get, err := c.get("/status", params)
+	get, err := c.get("status", params)
 	if err != nil {
 		return nil, err
 	}

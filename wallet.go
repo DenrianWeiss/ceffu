@@ -221,9 +221,9 @@ type GetWithdrawalFeeResp struct {
 // amount: optional, if not provided, the minimum withdrawal amount will be returned
 func (c *Client) GetWithdrawalFee(walletId string, coinSymbol string, network string, amount string) (*GetWithdrawalFeeResp, error) {
 	params := map[string]string{
-		"walletIdStr": walletId,
-		"coinSymbol":  coinSymbol,
-		"network":     network,
+		"walletId":   walletId,
+		"coinSymbol": coinSymbol,
+		"network":    network,
 	}
 	if amount != "" {
 		params["amount"] = amount

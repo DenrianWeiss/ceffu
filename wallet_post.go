@@ -29,7 +29,7 @@ func (c *Client) CreateWallet(walletName string, walletType int, requestId ...in
 		// Generate Random Request ID
 		params["requestId"] = GetReqId()
 	}
-	post, err := c.post("/wallet/create", params)
+	post, err := c.post("wallet/create", params)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (c *Client) UpdateWallet(walletId int64, walletName string, requestId ...in
 		// Generate Random Request ID
 		params["requestId"] = GetReqId()
 	}
-	post, err := c.post("/wallet/updateWallet", params)
+	post, err := c.post("wallet/updateWallet", params)
 	if err != nil {
 		return nil, err
 	}
@@ -100,10 +100,12 @@ func (c *Client) Withdrawal(amount string, coinSymbol string, memo string, netwo
 	params := map[string]interface{}{
 		"amount":            amount,
 		"coinSymbol":        coinSymbol,
-		"memo":              memo,
 		"network":           network,
 		"walletId":          walletId,
 		"withdrawalAddress": withdrawalAddress,
+	}
+	if memo != "" {
+		params["memo"] = memo
 	}
 	if len(requestId) > 0 {
 		params["requestId"] = requestId[0]
@@ -111,7 +113,7 @@ func (c *Client) Withdrawal(amount string, coinSymbol string, memo string, netwo
 		// Generate Random Request ID
 		params["requestId"] = GetReqId()
 	}
-	post, err := c.post("/wallet/withdrawal", params)
+	post, err := c.postV2("wallet/withdrawal", params)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +156,7 @@ func (c *Client) TransferWithExchange(amount string, coinSymbol string, directio
 	}
 	// Generate Random Request ID
 	params["requestId"] = GetReqId()
-	post, err := c.post("/wallet/transferWithExchange", params)
+	post, err := c.post("wallet/transferWithExchange", params)
 	if err != nil {
 		return nil, err
 	}
