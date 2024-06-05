@@ -2,11 +2,30 @@ package ceffu
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"testing"
 )
+
+func TestGetDeposit(t *testing.T) {
+	apiKey, _ := os.LookupEnv("CEFFU_API_KEY")
+	apiSecret, _ := os.LookupEnv("CEFFU_API_SECRET")
+	depositTx, _ := os.LookupEnv("CEFFU_TX")
+	cl, err := New(apiKey, apiSecret, http.DefaultClient, nil, CeffuApiBaseUrl)
+	if err != nil {
+		panic(err)
+	}
+	detail, err := cl.GetDepositDetail(depositTx)
+	if err != nil {
+		log.Printf("GetDepositDetail error %s", err)
+		return
+	}
+	log.Printf("GetDepositDetail %+v", detail)
+	// Get Deposit History
+
+}
 
 func TestCeffuClient(t *testing.T) {
 	// Load Ceffu Args from env
@@ -83,7 +102,7 @@ func TestGetMirrorXInfo(t *testing.T) {
 		MirrorXLinkId: mirrorXLinkIdActive,
 		OrderType:     int(MirrorXOrderTypeDeposit),
 		CoinSymbol:    "USDT",
-		Amount:        "1",
+		Amount:        amount.Data.MaxAvailableAmount,
 		RequestId:     "",
 	})
 	if err != nil {
@@ -112,14 +131,40 @@ func TestWithdraw(t *testing.T) {
 			walletId = datum.WalletID
 		}
 	}
-	fee, err := cl.GetWithdrawalFee(strconv.FormatInt(walletId, 10), "USDC", "ETH", "2")
+	// Get USDC Amount
+	ret, _ := cl.GetAssetDetails("USDT", "ETH", fmt.Sprintf("%d", walletId), 10, 1)
+	var usdcAmount float64
+	for _, datum := range ret.Data.Data {
+		if datum.CoinSymbol == "USDT" {
+			usdcAmount, _ = strconv.ParseFloat(datum.Amount, 64)
+		}
+	}
+	usdcAmountInt := usdcAmount
+	fee, err := cl.GetWithdrawalFee(strconv.FormatInt(walletId, 10), "USDT", "ETH", fmt.Sprintf("%f", usdcAmountInt))
 	if err != nil {
 		t.Error(err)
 	}
 	t.Logf("%+v", fee)
 	feeAmount, _ := strconv.ParseFloat(fee.Data.FeeAmount, 64)
 	// Get Fee From Resp & Call Withdraw
-	outAccount, _ := os.LookupEnv("CEFFU_OUT_ACCOUNT")
-	rq, err := cl.Withdrawal(fmt.Sprintf("%.2f", 100-feeAmount), "USDC", "", "ETH", walletId, outAccount)
+	outAccount := "0xd3BdD5B82B4a75cb2081405C35B9DDd6875fdC03"
+	rq, err := cl.Withdrawal(fmt.Sprintf("%f", usdcAmountInt-feeAmount), "USDT", "", "ETH", walletId, outAccount)
 	t.Logf("%+v", rq)
+}
+
+func TestGetWithdraw(t *testing.T) {
+	apiKey, _ := os.LookupEnv("CEFFU_API_KEY")
+	apiSecret, _ := os.LookupEnv("CEFFU_API_SECRET")
+	cl, err := New(apiKey, apiSecret, http.DefaultClient, nil, CeffuApiBaseUrl)
+	if err != nil {
+		panic(err)
+	}
+	detail, err := cl.GetWithdrawalDetail("24648095850261443323360001")
+	if err != nil {
+		log.Printf("GetDepositDetail error %s", err)
+		return
+	}
+	log.Printf("GetDepositDetail %+v", detail)
+	// Get Deposit History
+
 }
